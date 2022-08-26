@@ -1,24 +1,53 @@
-import logo from './logo.svg';
-import './App.css';
+import "@aws-amplify/ui-react/styles.css";
+import "./App.css";
+import { Amplify, Auth } from "aws-amplify";
+import { listener } from "./utils";
+import { words } from "./words";
 
-function App() {
+import { Authenticator, Button, Flex, View } from "@aws-amplify/ui-react";
+
+
+import { Hub } from "aws-amplify";
+import { I18n } from "aws-amplify";
+import { amplify_config } from "./configuration";
+import { ThemeProvider } from "@aws-amplify/ui-react";
+
+Hub.listen("auth", listener);
+I18n.putVocabularies(words);
+
+Amplify.configure(amplify_config);
+
+
+
+function App({ signOut, user }) {
+  I18n.setLanguage("fr");
+
+  const getUser = () => {
+    Auth.currentSession()
+      .then((data) => console.log(data.idToken.payload.email))
+      .catch((err) => console.log(err));
+  };
+
+  
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider>
+      <Flex direction="row">
+        <Authenticator loginMechanisms={["email"]} socialProviders={["google"]}>
+          {({ signOut, user }) => (
+            <View
+              width="100%"
+              backgroundColor={{ base: "orange", large: "yellow" }}
+            >
+              <Button variation="primary" onClick={() => getUser()}>
+                Get user
+              </Button>
+              <Button onClick={() => signOut()}>Sign Out</Button>
+            </View>
+          )}
+        </Authenticator>
+      </Flex>
+    </ThemeProvider>
   );
 }
 
