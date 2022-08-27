@@ -3,6 +3,7 @@ const words = {
         'Sign in': "Se connecter",
         'Sign In': "Se connecter",
         'Sign Up': "S'inscrire",
+        "Sign Out": "Se déconnecter",
         'Email': "Email",
         'Enter your email': "Entrez votre email",
         'Send code': 'Envoyer le code',
@@ -15,6 +16,12 @@ const words = {
 
         'Create Account': "Créer un compte",
         'Forgot your password?': "Mot de passe oublié ?",
+        'Sign In with Google': "Se connecter avec Google",
+        'Sign Up with Google': "S'inscrire avec Google",
+        'Signing in': "Connexion...",
+        'Username': "Nom d'utilisateur",
+        'or': "ou",
+        'Or': "Ou",
     },
     
   };

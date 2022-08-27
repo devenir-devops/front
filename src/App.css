@@ -1,6 +1,0 @@
-:root,
-[data-amplify-theme] {
-  --amplify-colors-font-primary: black;
-  /* you can also use references: */
-  --amplify-colors-font-secondary: var(--amplify-colors-neutral-60);
-}

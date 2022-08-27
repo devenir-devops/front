@@ -1,3 +1,8 @@
+
+
+
+
+
 const amplify_config = {
   Auth: {
     // REQUIRED only for Federated Authentication - Amazon Cognito Identity Pool ID
@@ -50,8 +55,8 @@ const amplify_config = {
     oauth: {
       domain: "connect.devenir-devops.com",
       scope: ["email", "openid"],
-      redirectSignIn: "http://localhost:3000/callback",
-      //redirectSignOut: "http://localhost:3000/",
+      redirectSignIn: "http://localhost:3000/authenticated",
+      redirectSignOut: "http://localhost:3000/",
       responseType: "code", // or 'token', note that REFRESH token will only be generated when the responseType is code
     },
   },
