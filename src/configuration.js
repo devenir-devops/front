@@ -55,8 +55,8 @@ const amplify_config = {
     oauth: {
       domain: "connect.devenir-devops.com",
       scope: ["email", "openid"],
-      redirectSignIn: "http://localhost:3000/authenticated",
-      redirectSignOut: "http://localhost:3000/",
+      redirectSignIn: "https://devenir-devops.com/authenticated",
+      redirectSignOut: "https://devenir-devops.com/",
       responseType: "code", // or 'token', note that REFRESH token will only be generated when the responseType is code
     },
   },
