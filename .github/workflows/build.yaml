@@ -17,7 +17,12 @@ jobs:
           node-version: 18
       - run: npm install -g yarn
       - run: yarn install
-      - run: npm run build --if-present
+      - name: build static
+        run: npm run build --if-present
+        env:
+          REACT_APP_REDIRECT_SIGN_IN: ${{ secrets.REACT_APP_REDIRECT_SIGN_IN }}
+          REACT_APP_REDIRECT_SIGN_OUT: ${{ secrets.REACT_APP_REDIRECT_SIGN_OUT }}
+          REACT_APP_COGNITO_DOMAIN: ${{ secrets.REACT_APP_COGNITO_DOMAIN }}
       - name: Configure AWS credentials from Test account
         uses: aws-actions/configure-aws-credentials@v1
         with:
