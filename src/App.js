@@ -1,21 +1,24 @@
 import "@aws-amplify/ui-react/styles.css";
 import "./App.css";
 import { Amplify, Auth } from "aws-amplify";
-import { listener } from "./utils";
 import { words } from "./words";
 
 import { Authenticator, ThemeProvider } from "@aws-amplify/ui-react";
 
-import { Hub } from "aws-amplify";
-import { I18n } from "aws-amplify";
+import { I18n, Hub } from "aws-amplify";
 import { amplify_config } from "./configuration";
 import { Link, Outlet, Route, Routes } from "react-router-dom";
 import colors from "tailwindcss/colors";
 
-
 import Navbar from "./navbar";
 
-Hub.listen("auth", listener);
+import { UserConsumerHook, UserProvider } from "./js/user";
+import { axios_instance } from "./js/api";
+import React, { useEffect } from "react";
+
+import { Logger } from "aws-amplify";
+const logger = new Logger("General-Logger", "INFO");
+
 I18n.putVocabularies(words);
 
 Amplify.configure(amplify_config);
@@ -59,9 +62,80 @@ function B() {
 }
 
 function Application() {
+  const [userState, dispatch] = UserConsumerHook();
+  const [user, setUser] = React.useState(null);
+  const [isFetchingUserFromAuth, setIsFetchingUserFromAuth] =
+    React.useState(false);
+  const [isFetchingUserFromMongo, setIsFetchingUserFromMongo] =
+    React.useState(false);
+  useEffect(() => {
+    const onAuthEvent = (payload) => {
+      logger.info(payload);
+      dispatch({ type: payload.event, data: payload.data });
+    };
+    if (!user && !isFetchingUserFromAuth) {
+      setIsFetchingUserFromAuth(true);
+      Auth.currentAuthenticatedUser()
+        .then((user) => {
+          logger.info(user);
+          setUser(user);
+          dispatch({ type: "LOGIN_COGNITO", data: user });
+          setIsFetchingUserFromAuth(false);
+        })
+        .catch((error) => {
+          logger.error(error);
+          setIsFetchingUserFromAuth(false);
+        });
+    }
+    if (
+      userState.logged &&
+      userState.cognitoFetched &&
+      !userState.mongoFetched &&
+      !isFetchingUserFromMongo
+    ) {
+      logger.info("fetching mongo");
+      setIsFetchingUserFromMongo(true);
+      Auth.currentAuthenticatedUser().then((user) => {
+        logger.info(user);
+        axios_instance
+          .get("/api/users/me", {
+            headers: {
+              Authorization: "Bearer " + userState.idToken,
+            },
+          })
+          .then((response) => {
+            dispatch({ type: "LOGIN_MONGO", data: response.data });
+            logger.info("fetched mongo");
+          })
+          .catch((error) => {
+            logger.error(error);
+          })
+          .finally(() => {
+            setIsFetchingUserFromMongo(false);
+          });
+      });
+    }
+
+    Hub.listen("auth", (data) => {
+      const { payload } = data;
+      onAuthEvent(payload);
+    });
+
+    console.log(userState);
+  }, [
+    dispatch,
+    userState,
+    user,
+    isFetchingUserFromAuth,
+    isFetchingUserFromMongo,
+  ]);
+
   const getUser = () => {
     Auth.currentSession()
-      .then((data) => console.log(data.idToken.payload.email))
+      .then((data) => {
+        dispatch({ type: "LOGIN", data: data });
+        console.log(data.idToken.payload.email);
+      })
       .catch((err) => console.log(err));
   };
 
@@ -72,13 +146,12 @@ function Application() {
       variation="modal"
     >
       {({ signOut, user }) => (
-        <>
+        <UserProvider>
           {user && (
             <>
               <button className="btn btn-primary" onClick={() => getUser()}>
                 Get user
               </button>
-
             </>
           )}
 
@@ -86,7 +159,7 @@ function Application() {
           <nav>
             <Link to="/authenticated/a">Application A</Link>
           </nav>
-        </>
+        </UserProvider>
       )}
     </Authenticator>
   );
@@ -94,7 +167,6 @@ function Application() {
 
 function App() {
   I18n.setLanguage("fr");
-
 
   const theme = {
     name: "Auth customized theme",
@@ -140,12 +212,13 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Navbar/>
+      <Navbar />
       <div className="container w-full flex flex-wrap mx-auto px-2 pt-20 lg:pt-24">
         <div className="w-full lg:w-1/5 lg:px-6 text-xl text-grey-darkest leading-normal">
           <Routes>
             <Route index element={<Home />} />
             <Route path="/" element={<Home />} />
+
             <Route path="/authenticated" element={<Application />}>
               <Route index element={<A />} />
               <Route path="a" element={<A />} />
