@@ -35,7 +35,7 @@ function Navbar() {
             className="text-black text-base no-underline hover:no-underline font-extrabold text-xl"
             href="/"
           >
-            Devenir DevOps
+          Devenir DevOps
           </a>
         </div>
         <div className="block lg:hidden pr-4">
@@ -64,18 +64,21 @@ function Navbar() {
           <div className="flex-1 w-full mx-auto max-w-sm content-center py-4 lg:py-0"></div>
           <ul className="list-reset lg:flex justify-end items-center">
             {isConnected && (
-              <li className="mr-3 py-2 lg:py-0">
+              <li className="mr-4 md:mr-3 py-2 lg:py-0 align-middle">
                 <button
-                  className="inline-block text-grey-dark no-underline hover:text-black hover:underline py-2 px-4 border shadow rounded bg-pink-100"
+                  className="inline-block flex gap-4 items-center text-grey-dark no-underline hover:text-black hover:underline hover:bg-pink-200 border shadow rounded bg-pink-100 align-middle justify-center w-full mx-2 md:py-2 md:px-4"
                   onClick={() => Auth.signOut()}
                 >
+                  <span className="text-sm inline-block">
+                    {I18n.get("Sign Out")}
+                  </span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
                     stroke="currentColor"
-                    className="w-6 h-6"
+                    className="w-6 h-6 inline-block align-middle"
                   >
                     <path
                       strokeLinecap="round"
@@ -89,7 +92,7 @@ function Navbar() {
             {!isConnected && (
               <li className="mr-3 py-2 lg:py-0 align-middle">
                 <Link
-                  className="inline-block flex gap-4 items-center text-grey-dark no-underline hover:text-black hover:underline py-2 px-4 border shadow rounded bg-pink-100 align-middle justify-center"
+                  className="inline-block flex gap-4 items-center text-grey-dark no-underline hover:text-black hover:underline hover:bg-pink-200 border shadow rounded bg-pink-100 align-middle justify-center w-full mx-2 md:py-2 md:px-4"
                   to="/authenticated/"
                 >
                   <svg
@@ -106,7 +109,9 @@ function Navbar() {
                       d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
                     />
                   </svg>
-                  <span className="text-sm inline-block">{I18n.get("Sign In")}</span>
+                  <span className="text-sm inline-block">
+                    {I18n.get("Sign In")}
+                  </span>
                 </Link>
               </li>
             )}

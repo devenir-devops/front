@@ -45,7 +45,7 @@ function A() {
   return (
     <>
       <nav>
-        <Link to="/authenticated/b">A</Link>
+        <Link to="/authenticated/b">This is application A</Link>
       </nav>
     </>
   );
@@ -55,7 +55,7 @@ function B() {
   return (
     <>
       <nav>
-        <Link to="/authenticated/a">B</Link>
+        <Link to="/authenticated/a">This is application B</Link>
       </nav>
     </>
   );
@@ -70,20 +70,18 @@ function Application() {
     React.useState(false);
   useEffect(() => {
     const onAuthEvent = (payload) => {
-      logger.info(payload);
       dispatch({ type: payload.event, data: payload.data });
     };
     if (!user && !isFetchingUserFromAuth) {
       setIsFetchingUserFromAuth(true);
       Auth.currentAuthenticatedUser()
         .then((user) => {
-          logger.info(user);
           setUser(user);
           dispatch({ type: "LOGIN_COGNITO", data: user });
-          setIsFetchingUserFromAuth(false);
         })
         .catch((error) => {
           logger.error(error);
+        }).finally(() => {
           setIsFetchingUserFromAuth(false);
         });
     }
@@ -93,10 +91,8 @@ function Application() {
       !userState.mongoFetched &&
       !isFetchingUserFromMongo
     ) {
-      logger.info("fetching mongo");
       setIsFetchingUserFromMongo(true);
       Auth.currentAuthenticatedUser().then((user) => {
-        logger.info(user);
         axios_instance
           .get("/api/users/me", {
             headers: {
@@ -105,7 +101,6 @@ function Application() {
           })
           .then((response) => {
             dispatch({ type: "LOGIN_MONGO", data: response.data });
-            logger.info("fetched mongo");
           })
           .catch((error) => {
             logger.error(error);
@@ -120,8 +115,6 @@ function Application() {
       const { payload } = data;
       onAuthEvent(payload);
     });
-
-    console.log(userState);
   }, [
     dispatch,
     userState,
@@ -154,11 +147,7 @@ function Application() {
               </button>
             </>
           )}
-
           <Outlet />
-          <nav>
-            <Link to="/authenticated/a">Application A</Link>
-          </nav>
         </UserProvider>
       )}
     </Authenticator>
@@ -214,7 +203,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <Navbar />
       <div className="container w-full flex flex-wrap mx-auto px-2 pt-20 lg:pt-24">
-        <div className="w-full lg:w-1/5 lg:px-6 text-xl text-grey-darkest leading-normal">
+        <div className="w-full text-xl text-grey-darkest w-full">
           <Routes>
             <Route index element={<Home />} />
             <Route path="/" element={<Home />} />
